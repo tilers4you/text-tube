@@ -1,0 +1,11 @@
+{
+  "glyphs": {},
+  "familyName": "Helvetiker",
+  "resolution": 1000,
+  "boundingBox": {
+    "yMin": -200,
+    "xMin": 0,
+    "yMax": 1000,
+    "xMax": 1000
+  }
+}
