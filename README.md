@@ -1,106 +1,152 @@
-# Text Tube Scroll Effect - React Three Fiber
+# 3D Rotating Text Cylinder with Particle Explosion
 
-Эффект прокрутки текста через горизонтальную трубку/туннель, как в видео.
+An interactive 3D text visualization built with React Three Fiber. Features text wrapped around a rotating cylinder with click-to-explode particle effects and infinite scroll.
 
-## Особенности
+![Demo](https://img.shields.io/badge/Demo-Live-brightgreen)
 
-- ✨ Плавная прокрутка текста с вращением
-- 🎭 3D эффект туннеля/трубки
-- 🎨 Настраиваемые цвета, размеры и текст
-- ⚡ Построено на React Three Fiber
-- 🎮 Интерактивные контроллеры (Leva GUI)
+## Features
 
-## Установка
+- 🎡 **Infinite Scroll** - Rotate the cylinder endlessly with mouse wheel
+- 💥 **Particle Explosions** - Click on any word to see it explode into dust particles
+- 🎨 **Customizable** - Full GUI controls for colors, spacing, speed, and more
+- ✨ **Smooth Animations** - Inertia-based rotation with smooth deceleration
+- 🌙 **Dark Theme** - Black background with white text by default
+- 📱 **Responsive** - Works on different screen sizes
 
-1. Установите зависимости:
+## Demo
+
+Scroll with your mouse wheel to rotate the text cylinder. Click on any word to make it explode into particles. The word will restore when you scroll again.
+
+## Installation
+
 ```bash
+# Clone the repository
+git clone <your-repo-url>
+
+# Navigate to project directory
+cd treejs
+
+# Install dependencies
 npm install
-```
 
-2. Скачайте шрифт для Text3D:
-```bash
-# Шрифт можно скачать с:
-# https://github.com/mrdoob/three.js/blob/dev/examples/fonts/helvetiker_bold.typeface.json
-# Положите в папку public/fonts/
-```
-
-Или используйте альтернативный подход с `<Text>` компонентом вместо `Text3D` (см. ниже).
-
-3. Запустите dev сервер:
-```bash
+# Start development server
 npm run dev
 ```
 
-## Использование
+## Usage
 
-Откройте браузер и **прокручивайте колёсиком мыши** - текст будет вращаться и проходить через трубку!
+1. **Scroll** - Use mouse wheel to rotate the cylinder infinitely
+2. **Click** - Click on any word to create a particle explosion effect
+3. **Customize** - Open the Leva GUI panel (top-right) to adjust settings
 
-### Контроллеры (правая панель)
+## Configuration
 
-- **fontSize** - размер шрифта
-- **letterSpacing** - расстояние между буквами
-- **scrollSpeed** - скорость прокрутки (количество страниц)
-- **tubeRadius** - радиус трубки
-- **wordWidthScale** - расстояние между словами
-- **textColor** - цвет текста
-- **backgroundColor** - цвет фона
-- **words** - текст (каждая строка = отдельное слово)
+The Leva GUI panel provides real-time controls:
 
-## Альтернатива без Text3D
+| Setting | Default | Range | Description |
+|---------|---------|-------|-------------|
+| fontSize | 0.7 | 0.3 - 3.0 | Size of the text |
+| letterSpacing | 0.01 | -0.1 - 0.5 | Space between letters |
+| wordSpacing | 0.4 | 0.2 - 3.0 | Distance between words around cylinder |
+| scrollSpeed | 1.0 | 0.5 - 5.0 | Rotation speed multiplier |
+| tubeRadius | 3.0 | 2.0 - 10.0 | Radius of the cylinder |
+| textColor | #ffffff | Color | Text color |
+| backgroundColor | #000000 | Color | Background color |
+| words | Custom | Text | Words to display (one per line) |
 
-Если у вас проблемы с загрузкой шрифта для Text3D, замените в `Scene.jsx`:
+## Technology Stack
 
-```jsx
-import { Text } from '@react-three/drei'
+- **React** - UI framework
+- **Three.js** - 3D graphics library
+- **React Three Fiber** - React renderer for Three.js
+- **React Three Drei** - Useful helpers for React Three Fiber
+- **Leva** - GUI controls
+- **Vite** - Build tool and dev server
 
-// Вместо Text3D используйте:
-<Text
-  fontSize={config.fontSize}
-  color={config.textColor}
-  anchorX="center"
-  anchorY="middle"
-  letterSpacing={config.letterSpacing}
->
-  {text}
-</Text>
-```
-
-## Структура проекта
+## Project Structure
 
 ```
 treejs/
 ├── src/
-│   ├── App.jsx          # Главный компонент с Canvas
-│   ├── Scene.jsx        # Сцена с текстом и эффектами
-│   ├── Tube.jsx         # Компонент трубки/туннеля
-│   ├── main.jsx         # Точка входа
-│   └── index.css        # Стили
+│   ├── AppTube.jsx           # Main app component with Canvas setup
+│   ├── TubeWithText.jsx      # Cylinder with text positioning logic
+│   ├── ExplodingText.jsx     # Text component with particle explosion
+│   ├── main.jsx              # Entry point
+│   └── index.css             # Global styles
 ├── public/
-│   └── fonts/           # Шрифты для Text3D
 ├── package.json
-└── vite.config.js
+├── vite.config.js
+└── README.md
 ```
 
-## Как это работает
+## How It Works
 
-1. **ScrollControls** от drei создаёт прокручиваемую область
-2. При прокрутке текст движется по оси Z и вращается
-3. Каждое слово появляется постепенно (staggered reveal)
-4. Трубка вращается вместе с прокруткой
-5. Opacity и scale анимируются для плавного эффекта
+### Infinite Scroll
+The cylinder uses direct mouse wheel events instead of bounded scroll controls, allowing continuous rotation without limits. Velocity is accumulated and smoothly dampened for natural physics.
 
-## Технологии
+### Particle Explosion
+When text is clicked:
+1. Text disappears and spawns 300 tiny particles
+2. Particles explode outward in all directions with randomized velocities
+3. Turbulence is applied for a smoke/dust effect
+4. Particles fade out and expand slightly
+5. Scrolling restores the original text
 
-- React 18
-- Three.js
-- React Three Fiber
-- React Three Drei
-- Leva (GUI controls)
-- Vite
+### Text Positioning
+Text elements are positioned around the cylinder's circumference using trigonometric calculations:
+- Each word is placed at an angle based on `wordSpacing`
+- Position: `[0, sin(angle) * radius, cos(angle) * radius]`
+- Rotation ensures text faces outward from cylinder
 
-## Build для продакшена
+## Customization
 
-```bash
-npm run build
-npm run preview
+### Changing Default Text
+
+Edit the `words` config in `src/AppTube.jsx`:
+
+```javascript
+words: {
+  value: 'YOUR\nCUSTOM\nTEXT\nHERE',
+  rows: 4
+}
 ```
+
+### Adjusting Particle Effects
+
+Modify `src/ExplodingText.jsx`:
+
+```javascript
+const particleCount = 300  // Number of particles
+const speed = 1 + Math.random() * 4  // Explosion speed
+```
+
+## Performance
+
+- Uses efficient particle rendering with geometry instancing
+- Optimized for 60 FPS on modern devices
+- Particle count can be adjusted for lower-end devices
+
+## Browser Support
+
+- Chrome/Edge (recommended)
+- Firefox
+- Safari
+- Requires WebGL support
+
+## License
+
+MIT
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## Acknowledgments
+
+- Built with [React Three Fiber](https://docs.pmnd.rs/react-three-fiber)
+- GUI powered by [Leva](https://github.com/pmndrs/leva)
+- Inspired by creative 3D text effects
+
+---
+
+Made with ❤️ using React and Three.js

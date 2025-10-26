@@ -1,16 +1,17 @@
 import { Canvas } from '@react-three/fiber'
-import { ScrollControls, OrbitControls } from '@react-three/drei'
+import { OrbitControls } from '@react-three/drei'
 import { useControls } from 'leva'
 import TubeWithText from './TubeWithText'
 
 export default function AppTube() {
   const config = useControls({
-    fontSize: { value: 1, min: 0.3, max: 3, step: 0.1 },
-    letterSpacing: { value: 0.05, min: -0.1, max: 0.5, step: 0.01 },
-    scrollSpeed: { value: 2, min: 0.5, max: 5, step: 0.5 },
-    tubeRadius: { value: 4, min: 2, max: 10, step: 0.5 },
+    fontSize: { value: 0.7, min: 0.3, max: 3, step: 0.1 },
+    letterSpacing: { value: 0.01, min: -0.1, max: 0.5, step: 0.01 },
+    wordSpacing: { value: 0.4, min: 0.2, max: 3, step: 0.1, label: 'Word Spacing (расстояние между словами)' },
+    scrollSpeed: { value: 1.0, min: 0.5, max: 5, step: 0.5 },
+    tubeRadius: { value: 3.0, min: 2, max: 10, step: 0.5 },
     textColor: '#ffffff',
-    backgroundColor: '#2d7a4f',
+    backgroundColor: '#000000',
     words: {
       value: 'WE\nLOVE\nTO MAKE\nNEXT-GEN\nIDEAS',
       rows: 5
@@ -20,7 +21,7 @@ export default function AppTube() {
   })
 
   return (
-    <div style={{ width: '100vw', height: '100vh', background: '#1a1a1a' }}>
+    <div style={{ width: '100vw', height: '100vh', background: '#000000' }}>
       <Canvas
         camera={{ position: [0, 0, 15], fov: 50 }}
         gl={{ antialias: true }}
@@ -42,9 +43,8 @@ export default function AppTube() {
         {/* Optional orbit controls for debugging */}
         {config.enableOrbitControls && <OrbitControls />}
 
-        <ScrollControls pages={3} damping={0.2} distance={1}>
-          <TubeWithText config={config} />
-        </ScrollControls>
+        {/* Tube with infinite scroll */}
+        <TubeWithText config={config} />
       </Canvas>
 
       {/* Instructions */}

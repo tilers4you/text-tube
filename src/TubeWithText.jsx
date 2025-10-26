@@ -1,34 +1,61 @@
-import { useRef, useMemo } from 'react'
+import { useRef, useMemo, useState, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { Text, useScroll } from '@react-three/drei'
 import * as THREE from 'three'
+import ExplodingText from './ExplodingText'
 
 export default function TubeWithText({ config }) {
   const tubeRef = useRef()
   const textGroupRef = useRef()
-  const scroll = useScroll()
+  const [scrollChange, setScrollChange] = useState(0)
+  const totalRotation = useRef(0)
+  const velocity = useRef(0)
 
   // Parse words from config
   const words = useMemo(() => {
     return config.words.split('\n').filter(w => w.trim())
   }, [config.words])
 
-  useFrame(() => {
+  // Handle infinite wheel scroll
+  useEffect(() => {
+    const handleWheel = (e) => {
+      e.preventDefault()
+
+      // Add to velocity based on wheel delta
+      const delta = e.deltaY * 0.001 * config.scrollSpeed
+      velocity.current += delta
+
+      // Trigger scroll change for exploded text restoration
+      setScrollChange(prev => prev + 1)
+    }
+
+    window.addEventListener('wheel', handleWheel, { passive: false })
+    return () => window.removeEventListener('wheel', handleWheel)
+  }, [config.scrollSpeed])
+
+  useFrame((state, delta) => {
     if (!tubeRef.current || !textGroupRef.current) return
 
-    const offset = scroll.offset
+    // Apply velocity to rotation (infinite)
+    totalRotation.current += velocity.current * delta * 10
 
-    // Rotate the entire group (tube + text) around X axis (horizontal rotation)
-    const rotation = offset * Math.PI * 4 * config.scrollSpeed
-    tubeRef.current.rotation.x = rotation
-    textGroupRef.current.rotation.x = rotation
+    // Apply friction/damping
+    velocity.current *= 0.92
+
+    // Update rotation continuously
+    tubeRef.current.rotation.x = totalRotation.current
+    textGroupRef.current.rotation.x = totalRotation.current
   })
 
   // Calculate text positions around the cylinder
   const textElements = useMemo(() => {
     const radius = config.tubeRadius
     const totalWords = words.length
-    const angleStep = (Math.PI * 2) / totalWords
+
+    // Calculate base angle step (full circle divided by number of words)
+    const baseAngleStep = (Math.PI * 2) / totalWords
+
+    // Apply wordSpacing uniformly - smaller spacing = words closer together
+    const angleStep = baseAngleStep * config.wordSpacing
 
     return words.map((word, index) => {
       const angle = index * angleStep
@@ -45,7 +72,7 @@ export default function TubeWithText({ config }) {
         rotation: [-angle, 0, 0]
       }
     })
-  }, [words, config.tubeRadius])
+  }, [words, config.tubeRadius, config.wordSpacing])
 
   return (
     <group>
@@ -61,25 +88,19 @@ export default function TubeWithText({ config }) {
         />
       </mesh>
 
-      {/* Text elements positioned on cylinder surface */}
+      {/* Exploding text elements positioned on cylinder surface */}
       <group ref={textGroupRef}>
         {textElements.map(({ word, position, rotation }, index) => (
-          <Text
+          <ExplodingText
             key={index}
+            text={word}
             position={position}
             rotation={rotation}
             fontSize={config.fontSize}
             color={config.textColor}
-            anchorX="center"
-            anchorY="middle"
             letterSpacing={config.letterSpacing}
-            maxWidth={8}
-            textAlign="center"
-            outlineWidth={0.05}
-            outlineColor="#000000"
-          >
-            {word}
-          </Text>
+            onScrollChange={scrollChange}
+          />
         ))}
       </group>
     </group>
